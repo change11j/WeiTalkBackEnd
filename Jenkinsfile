@@ -14,9 +14,9 @@ pipeline {
         stage('Deploy') {
             steps {
                     sh '''
-                        sudo docker stop $(sudo docker ps -q --filter ancestor=weitalk-backend) || true
-                        sudo docker rm $(sudo docker ps -aq --filter ancestor=weitalk-backend) || true
-                        sudo docker run -d -p 8081:80 weitalk-backend
+                        docker stop $(sudo docker ps -q --filter ancestor=weitalk-backend) || true
+                        docker rm $(sudo docker ps -aq --filter ancestor=weitalk-backend) || true
+                        docker run -d -p 8081:80 weitalk-backend
                     '''
                 }
         }
