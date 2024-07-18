@@ -9,7 +9,7 @@ import org.springframework.web.socket.config.annotation.*;
 public class WebSocketConfig implements WebSocketConfigurer {
     @Autowired
     private ChatWebSocketHandler chatWebSocketHandler;
-//    testcicd again
+//    testcicd 第三次測試
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
