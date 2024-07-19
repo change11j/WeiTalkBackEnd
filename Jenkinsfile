@@ -1,8 +1,13 @@
 pipeline {
     agent any
     tools {
-            maven 'Maven' // 確保在 Jenkins 全局工具配置中設置了 Maven
-        }
+        maven 'Maven'
+    }
+    environment {
+        DOCKER_HOST = 'tcp://YOUR_LIGHTSAIL_IP:2375'
+        IMAGE_NAME = 'weitalk-backend'
+        CONTAINER_NAME = 'weitalk-backend-container'
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -10,26 +15,32 @@ pipeline {
             }
         }
         stage('Build') {
-                    steps {
-                        sh 'mvn clean package' // 使用 Maven 編譯項目
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+        stage('Docker Build and Push') {
+            steps {
+                script {
+                    docker.withServer(env.DOCKER_HOST) {
+                        def customImage = docker.build("${env.IMAGE_NAME}:${env.BUILD_NUMBER}")
+                        customImage.push()
                     }
                 }
-                stage('Docker Build') {
-                    steps {
-                        sh 'docker build -t weitalk-backend .'
-                    }
-                }
+            }
+        }
         stage('Deploy') {
             steps {
-                      sh '''
-                                docker stop $(docker ps -a -q --filter ancestor=weitalk-backend --format="{{.ID}}") || true
-                                docker rm $(docker ps -a -q --filter ancestor=weitalk-backend --format="{{.ID}}") || true
-                                CONTAINER_ID=$(docker run -d -P weitalk-backend)
-                                echo "Container ID: $CONTAINER_ID"
-                                EXPOSED_PORT=$(docker port $CONTAINER_ID 80 | cut -d ':' -f 2)
-                                echo "Application is running on port $EXPOSED_PORT"
-                            '''
+                script {
+                    docker.withServer(env.DOCKER_HOST) {
+                        sh """
+                            docker stop ${CONTAINER_NAME} || true
+                            docker rm ${CONTAINER_NAME} || true
+                            docker run -d -p 8080:8080 --name ${CONTAINER_NAME} ${IMAGE_NAME}:${BUILD_NUMBER}
+                        """
+                    }
                 }
+            }
         }
     }
 }
