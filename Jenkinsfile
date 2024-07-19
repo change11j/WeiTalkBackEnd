@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    tools {
+            maven 'Maven' // 確保在 Jenkins 全局工具配置中設置了 Maven
+        }
     stages {
         stage('Checkout') {
             steps {
@@ -7,10 +10,15 @@ pipeline {
             }
         }
         stage('Build') {
-            steps {
-                sh 'docker build -t weitalk-backend .'
-            }
-        }
+                    steps {
+                        sh 'mvn clean package' // 使用 Maven 編譯項目
+                    }
+                }
+                stage('Docker Build') {
+                    steps {
+                        sh 'docker build -t weitalk-backend .'
+                    }
+                }
         stage('Deploy') {
             steps {
                       sh '''
