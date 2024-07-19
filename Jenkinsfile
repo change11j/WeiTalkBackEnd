@@ -4,7 +4,7 @@ pipeline {
         maven 'Maven'
     }
     environment {
-        DOCKER_HOST = 'tcp://YOUR_LIGHTSAIL_IP:2375'
+        DOCKER_HOST = 'tcp://13.125.233.208:2375'
         IMAGE_NAME = 'weitalk-backend'
         CONTAINER_NAME = 'weitalk-backend-container'
     }
